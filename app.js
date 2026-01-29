@@ -751,6 +751,19 @@ function initMap() {
   // Position zoom controls on bottom-right (MapLibre docs: addControl second arg = position)
   map.addControl(new maplibregl.NavigationControl({ showCompass: false, visualizePitch: false }), "bottom-right");
 
+  // Resize map when viewport changes (fixes iOS Safari address bar / rotation)
+  const onResize = () => {
+    if (map) map.resize();
+  };
+  window.addEventListener("resize", onResize);
+  window.addEventListener("orientationchange", () => {
+    setTimeout(onResize, 100);
+  });
+  map.on("load", () => {
+    requestAnimationFrame(onResize);
+    setTimeout(onResize, 200);
+  });
+
   map.on("click", (e) => {
     if (!map) return;
 
