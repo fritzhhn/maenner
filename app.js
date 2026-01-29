@@ -408,12 +408,18 @@ function submitNoteFromPopup(noteText, buttonEl) {
       }
       addMarker(item);
     }
+    // Close add-note popup first so keyboard closes and viewport is stable before flyTo
+    closeAddNotePopup();
+    document.activeElement && document.activeElement.blur && document.activeElement.blur();
     const targetZoom = Math.max(map.getZoom(), 14);
     const flyCenter = getCenterLngLatWithMarkerBelowAtZoom([item.lng, item.lat], MARKER_OFFSET_BELOW_CENTER, targetZoom);
-    map.flyTo({ center: flyCenter, zoom: targetZoom });
-    skipNextPopupOpenFly = true;
-    openOrToggleMarkerPopup(item.id);
-    closeAddNotePopup();
+    // Run flyTo after a tick so layout/viewport has settled (avoids UI jumping on mobile)
+    requestAnimationFrame(() => {
+      if (!map) return;
+      map.flyTo({ center: flyCenter, zoom: targetZoom });
+      skipNextPopupOpenFly = true;
+      openOrToggleMarkerPopup(item.id);
+    });
   } catch (err) {
     setStatus(err instanceof Error ? err.message : "Something went wrong.");
   } finally {
@@ -751,9 +757,17 @@ function initMap() {
   // Position zoom controls on bottom-right (MapLibre docs: addControl second arg = position)
   map.addControl(new maplibregl.NavigationControl({ showCompass: false, visualizePitch: false }), "bottom-right");
 
-  // Resize map when viewport changes (fixes iOS Safari address bar / rotation)
+  // Resize map when viewport changes (fixes iOS Safari address bar / rotation).
+  // Defer resize until after flyTo/move so UI doesn't jump during zoom animation.
   const onResize = () => {
-    if (map) map.resize();
+    if (!map) return;
+    if (typeof map.isMoving === "function" && map.isMoving()) {
+      map.once("moveend", () => {
+        if (map) map.resize();
+      });
+      return;
+    }
+    map.resize();
   };
   window.addEventListener("resize", onResize);
   window.addEventListener("orientationchange", () => {
