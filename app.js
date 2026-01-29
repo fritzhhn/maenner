@@ -52,6 +52,8 @@ let addNotePopup = null;
 let openMarkerPopup = null;
 /** @type {string|null} */
 let openMarkerPopupId = null;
+/** When true, popup "open" handler should not fly (we already flew from submit path). */
+let skipNextPopupOpenFly = false;
 
 function namespaceSvgClasses(svgText, prefix) {
   if (!svgText || typeof svgText !== "string") return svgText;
@@ -321,7 +323,7 @@ function createAddNotePopupContent() {
   const form = document.createElement("form");
   form.className = "addNotePopupForm";
   const textarea = document.createElement("textarea");
-  textarea.placeholder = "Write your note…";
+  textarea.placeholder = "";
   textarea.rows = 5;
   textarea.name = "note";
   textarea.setAttribute("required", "");
@@ -406,8 +408,10 @@ function submitNoteFromPopup(noteText, buttonEl) {
       }
       addMarker(item);
     }
-    const flyCenter = getCenterLngLatWithMarkerBelow([item.lng, item.lat], MARKER_OFFSET_BELOW_CENTER);
-    map.flyTo({ center: flyCenter, zoom: Math.max(map.getZoom(), 14) });
+    const targetZoom = Math.max(map.getZoom(), 14);
+    const flyCenter = getCenterLngLatWithMarkerBelowAtZoom([item.lng, item.lat], MARKER_OFFSET_BELOW_CENTER, targetZoom);
+    map.flyTo({ center: flyCenter, zoom: targetZoom });
+    skipNextPopupOpenFly = true;
     openOrToggleMarkerPopup(item.id);
     closeAddNotePopup();
   } catch (err) {
@@ -424,6 +428,21 @@ const MARKER_OFFSET_BELOW_CENTER = 200; // when centering on marker, place marke
 function getCenterLngLatWithMarkerBelow(lngLat, offsetPx) {
   const point = map.project(lngLat);
   return map.unproject([point.x, point.y - offsetPx]);
+}
+
+/**
+ * Return center lngLat at targetZoom so that the given point appears offsetPx pixels below the visual center.
+ * Use this when flying to a marker from a different view (e.g. after adding a note) so we don't zoom in place.
+ */
+function getCenterLngLatWithMarkerBelowAtZoom(lngLat, offsetPx, targetZoom) {
+  const savedCenter = map.getCenter();
+  const savedZoom = map.getZoom();
+  map.setCenter(lngLat);
+  map.setZoom(targetZoom);
+  const flyCenter = getCenterLngLatWithMarkerBelow(lngLat, offsetPx);
+  map.setCenter(savedCenter);
+  map.setZoom(savedZoom);
+  return flyCenter;
 }
 
 /** Open or toggle the note popup for a marker (standalone Popup so anchor/offset are respected). */
@@ -452,7 +471,12 @@ function openOrToggleMarkerPopup(noteId) {
     openMarkerPopupId = null;
   });
   popup.on("open", () => {
-    map.flyTo({ center: marker.getLngLat(), zoom: map.getZoom() });
+    if (skipNextPopupOpenFly) {
+      skipNextPopupOpenFly = false;
+      return;
+    }
+    const flyCenter = getCenterLngLatWithMarkerBelow(marker.getLngLat(), MARKER_OFFSET_BELOW_CENTER);
+    map.flyTo({ center: flyCenter, zoom: map.getZoom() });
   });
   openMarkerPopup = popup;
   openMarkerPopupId = noteId;
@@ -808,9 +832,10 @@ async function onSubmit(e) {
       addMarker(item);
     }
 
-    const flyCenter = getCenterLngLatWithMarkerBelow([item.lng, item.lat], MARKER_OFFSET_BELOW_CENTER);
-    map.flyTo({ center: flyCenter, zoom: Math.max(map.getZoom(), 14) });
-
+    const targetZoom = Math.max(map.getZoom(), 14);
+    const flyCenter = getCenterLngLatWithMarkerBelowAtZoom([item.lng, item.lat], MARKER_OFFSET_BELOW_CENTER, targetZoom);
+    map.flyTo({ center: flyCenter, zoom: targetZoom });
+    skipNextPopupOpenFly = true;
     openOrToggleMarkerPopup(item.id);
 
     closeAddNotePopup();

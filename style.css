@@ -385,18 +385,19 @@ button.secondary {
   color: #ef95bd !important;
 }
 
-/* Style MapLibre zoom control icons - hide default icons and use custom SVG */
-.maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon,
-.maplibregl-ctrl-zoom-out .maplibregl-ctrl-icon {
+/* Style MapLibre zoom control icons - hide default icons and use custom black +/- SVG (specific so it wins on GitHub Pages) */
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl-group .maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon,
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl-group .maplibregl-ctrl-zoom-out .maplibregl-ctrl-icon {
   display: none !important;
 }
 
-.maplibregl-ctrl-zoom-in::before {
+/* Plus icon – black stroke (use %23000 so it always applies) */
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl-group .maplibregl-ctrl-zoom-in::before {
   content: '';
-  display: block;
+  display: block !important;
   width: 24px;
   height: 24px;
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='12' y1='6' x2='12' y2='18' stroke='black' stroke-width='1' stroke-linecap='round'/%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='black' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='12' y1='6' x2='12' y2='18' stroke='%23000' stroke-width='1' stroke-linecap='round'/%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='%23000' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E") !important;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -406,16 +407,17 @@ button.secondary {
   transform: translate(-50%, -50%);
 }
 
-.maplibregl-ctrl-zoom-in:hover::before {
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='12' y1='6' x2='12' y2='18' stroke='%23ef95bd' stroke-width='1' stroke-linecap='round'/%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='%23ef95bd' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl-group .maplibregl-ctrl-zoom-in:hover::before {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='12' y1='6' x2='12' y2='18' stroke='%23ef95bd' stroke-width='1' stroke-linecap='round'/%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='%23ef95bd' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E") !important;
 }
 
-.maplibregl-ctrl-zoom-out::before {
+/* Minus icon – black stroke */
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl-group .maplibregl-ctrl-zoom-out::before {
   content: '';
-  display: block;
+  display: block !important;
   width: 24px;
   height: 24px;
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='black' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='%23000' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E") !important;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -425,8 +427,8 @@ button.secondary {
   transform: translate(-50%, -50%);
 }
 
-.maplibregl-ctrl-zoom-out:hover::before {
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='%23ef95bd' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl-group .maplibregl-ctrl-zoom-out:hover::before {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='%23ef95bd' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E") !important;
 }
 
 .maplibregl-ctrl-group button + button {
