@@ -769,6 +769,17 @@ button.secondary {
   border: 1px solid #000;
 }
 
+/* Add-note popup: own max width, independent of menu; content scales inside */
+.maplibregl-popup-content:has(.addNotePopupForm) {
+  width: min(320px, calc(100vw - 48px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)));
+  max-width: min(320px, calc(100vw - 48px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)));
+  box-sizing: border-box;
+  /* Center content on popup anchor so tip stays under middle of box (same as default popups) */
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .maplibregl-popup-content h3 {
   margin: 0 0 6px;
   font-size: 14px;
@@ -782,19 +793,21 @@ button.secondary {
   overflow-wrap: break-word;
 }
 
-/* Add-note form inside popup – same container as marker popup */
+/* Add-note form inside popup – fills popup width, scales with it */
 .addNotePopupForm {
   display: flex;
   flex-direction: column;
   gap: 10px;
   min-width: 0;
   width: 100%;
-  max-width: min(280px, calc(100vw - 48px));
+  max-width: 100%;
   margin-top: 12px;
+  box-sizing: border-box;
 }
 
 .addNotePopupForm textarea {
   width: 100%;
+  min-width: 0;
   min-height: 80px;
   padding: 8px 10px;
   border: 1px solid #000;
@@ -808,6 +821,7 @@ button.secondary {
   resize: vertical;
   box-shadow: none;
   display: block;
+  box-sizing: border-box;
 }
 
 .addNotePopupForm button[type="submit"] {
