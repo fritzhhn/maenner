@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Berlin Map Notes</title>
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="map" class="map fullscreen" role="application" aria-label="Map"></div>
+
+    <div class="brandCenter" aria-hidden="true">
+      <strong>MÄNNER BELÄSTIGEN</strong>
+    </div>
+
+    <div class="leftControls">
+      <button id="hamburgerBtn" class="hamburgerBtn" aria-label="Open menu" type="button">
+        <span class="hamburgerIcon"><svg viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg"><rect y="0" width="24" height="1" fill="black"/><rect y="8.5" width="24" height="1" fill="black"/><rect y="17" width="24" height="1" fill="black"/></svg></span>
+      </button>
+    </div>
+
+    <div class="rightControls">
+      <button id="locationBtn" class="locationBtn" aria-label="Use my location" type="button" title="Use my location">
+        <span class="locationIcon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" fill="none" stroke="black" stroke-width="1"/><line x1="12" y1="4" x2="12" y2="8" stroke="black" stroke-width="1" stroke-linecap="round"/><line x1="12" y1="16" x2="12" y2="20" stroke="black" stroke-width="1" stroke-linecap="round"/><line x1="4" y1="12" x2="8" y2="12" stroke="black" stroke-width="1" stroke-linecap="round"/><line x1="16" y1="12" x2="20" y2="12" stroke="black" stroke-width="1" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="black"/></svg></span>
+      </button>
+    </div>
+
+    <div id="menuOverlay" class="menuOverlay" aria-hidden="true">
+      <div class="menuOverlayScroll">
+        <div class="menuContent">
+        <h2>ABOUT</h2>
+        <p>Diese Plattform wurde geschaffen, um Frauen* einen sicheren Raum zu geben, ihre Erfahrungen mit sexueller Belästigung anonym zu teilen. Zu oft bleiben solche Erlebnisse unsichtbar, werden verharmlost oder verschwiegen – wir möchten das ändern.</p>
+        <p>Durch das anonyme Teilen von Erfahrungen und das Sammeln von Standorten auf einer Karte machen wir sichtbar, wo sexuelle Belästigung im öffentlichen Raum stattfindet. Nicht, um Angst zu verbreiten – sondern um Bewusstsein zu schaffen, Solidarität zu stärken und Veränderung anzustoßen.</p>
+        <h3>Warum eine Karte?</h3>
+        <p>Viele Betroffene berichten, dass sie bestimmte Orte meiden, ohne dass je offiziell anerkannt wird, dass dort ein Problem besteht. Die gesammelten Daten können helfen:</p>
+        <ul>
+          <li>gefährliche Orte zu identifizieren</li>
+          <li>strukturelle Muster sichtbar zu machen</li>
+          <li>Städte, Gemeinden und Institutionen auf Missstände aufmerksam zu machen</li>
+        </ul>
+        <p>Langfristig können die anonymisierten Erkenntnisse genutzt werden, um politischen Entscheidungsträgern aufzuzeigen, wo Handlungsbedarf besteht.</p>
+        <h3>Anonym. Solidarisch. Empowernd.</h3>
+        <p>Alle Beiträge sind anonym. Niemand muss persönliche Daten angeben. Diese Plattform gehört den Frauen*, die ihre Stimme erheben – und allen, die zuhören und Verantwortung übernehmen.</p>
+        <p>*Frauen schließt hier alle Personen ein, die sich als Frauen identifizieren oder aufgrund ihres Geschlechts sexualisierte Gewalt erfahren.</p>
+        <h3>Keine offizielle Meldestelle</h3>
+        <p>Diese Plattform ist keine offizielle Anlaufstelle, ersetzt keine Anzeige bei der Polizei, keine Beratungsstelle und keine rechtliche oder therapeutische Unterstützung.</p>
+        <p>Sie ist ein Ort, um Erlebtes zu teilen, sich mitzuteilen und sichtbar zu machen, wo sexuelle Belästigung stattfindet – nicht, um formelle Vorwürfe zu erheben oder Täter zu verfolgen.</p>
+        <h3>Raum für Ausdruck</h3>
+        <p>Viele Betroffene erleben, dass ihre Gefühle keinen Platz haben. Wut, Angst, Scham oder Ohnmacht dürfen hier ausgesprochen werden.</p>
+        <p>Beiträge dienen dem persönlichen Ausdruck, dem „Sich-Luft-Machen“ und dem Teilen von Erfahrungen – nicht der Beweisführung.</p>
+        <h3>Unterstützung &amp; Hilfeangebote</h3>
+        <p>Diese Plattform ist keine offizielle Anlaufstelle und ersetzt keine professionelle Hilfe. Wenn dich das Teilen oder Lesen von Erfahrungen belastet oder du Unterstützung brauchst, wende dich bitte an eine der folgenden Stellen. Dort bekommst du vertrauliche, kostenlose Hilfe von geschulten Fachpersonen:</p>
+        <p><strong>Hilfetelefon „Gewalt gegen Frauen“</strong><br>08000 116 016<br>24/7 erreichbar · anonym · kostenlos<br><a href="https://www.hilfetelefon.de" target="_blank" rel="noopener">https://www.hilfetelefon.de</a><br>Beratung auch per Chat und E-Mail möglich</p>
+        <p><strong>Nummer gegen Kummer (für junge Menschen)</strong><br>116 111<br>Mo–Sa 14–20 Uhr<br><a href="https://www.nummergegenkummer.de" target="_blank" rel="noopener">https://www.nummergegenkummer.de</a></p>
+        <p>Wenn du dich akut in Gefahr fühlst, wende dich bitte an den Notruf deines Landes.</p>
+
+        <h2>PRIVACY POLICY / DATENSCHUTZERKLÄRUNG</h2>
+        <h3>1. Datenschutz auf einen Blick</h3>
+        <p>Der Schutz deiner Daten ist uns besonders wichtig. Diese Website ist so konzipiert, dass möglichst wenige personenbezogene Daten erhoben werden.</p>
+        <h3>2. Anonyme Beiträge</h3>
+        <p>Beim Erstellen eines Beitrags:</p>
+        <ul>
+          <li>werden keine Namen oder Kontodaten verlangt</li>
+          <li>werden Beiträge ohne Klarnamen veröffentlicht</li>
+        </ul>
+        <p>Die Verantwortung für die Anonymität der Inhalte liegt auch bei den Nutzerinnen selbst.</p>
+        <h3>3. Standortdaten</h3>
+        <p>Standortangaben werden nicht als exakte Adressen, sondern in abstrahierter Form (z. B. Straßenzüge oder Bereiche) gespeichert und dargestellt, um Rückschlüsse auf einzelne Personen zu vermeiden.</p>
+        <h3>4. Technische Daten</h3>
+        <p>Beim Besuch der Website können automatisch folgende Daten erfasst werden:</p>
+        <ul>
+          <li>IP-Adresse (gekürzt oder anonymisiert, sofern technisch möglich)</li>
+          <li>Browsertyp und Betriebssystem</li>
+          <li>Datum und Uhrzeit des Zugriffs</li>
+        </ul>
+        <p>Diese Daten dienen ausschließlich der technischen Sicherheit und dem Betrieb der Website.</p>
+        <h3>5. Weiterverwendung der Daten</h3>
+        <p>Anonymisierte und aggregierte Daten können:</p>
+        <ul>
+          <li>für statistische Auswertungen genutzt werden</li>
+          <li>in Berichten oder Visualisierungen veröffentlicht werden</li>
+          <li>an Städte, Gemeinden oder Forschungseinrichtungen weitergegeben werden</li>
+        </ul>
+        <p>Eine Weitergabe erfolgt niemals mit personenbezogenen oder identifizierenden Daten.</p>
+        <h3>6. Deine Rechte</h3>
+        <p>Du hast jederzeit das Recht auf:</p>
+        <ul>
+          <li>Auskunft über gespeicherte Daten</li>
+          <li>Löschung von Inhalten, sofern diese zugeordnet werden können</li>
+        </ul>
+        <p>Kontakt: <a href="mailto:maennerbelaestigen@gmail.com">maennerbelaestigen@gmail.com</a></p>
+
+        <h2>TERMS OF USE / NUTZUNGSBEDINGUNGEN</h2>
+        <h3>1. Zweck der Plattform</h3>
+        <p>Diese Website dient dem anonymen Teilen persönlicher Erfahrungen mit sexueller Belästigung sowie der anonymisierten Darstellung von Orten, an denen solche Vorfälle stattgefunden haben.</p>
+        <h3>2. Anonyme Nutzung</h3>
+        <p>Die Nutzung der Plattform ist anonym. Nutzerinnen werden ausdrücklich dazu aufgefordert, keine Namen, konkreten Identitätsmerkmale oder privaten Informationen (z. B. vollständige Adressen, Autokennzeichen, Arbeitgeber) anzugeben.</p>
+        <h3>3. Verantwortung für Inhalte</h3>
+        <p>Die Nutzerinnen sind für die von ihnen eingestellten Inhalte selbst verantwortlich. Nicht erlaubt sind insbesondere:</p>
+        <ul>
+          <li>Falsche Beschuldigungen einzelner identifizierbarer Personen</li>
+          <li>Hassrede, Beleidigungen oder Gewaltaufrufe</li>
+          <li>Inhalte, die gegen geltendes Recht verstoßen</li>
+        </ul>
+        <p>Der Betreiber behält sich vor, Inhalte zu prüfen und gegebenenfalls zu entfernen.</p>
+        <h3>4. Keine rechtliche Beratung</h3>
+        <p>Die Inhalte auf dieser Plattform stellen keine rechtliche oder psychologische Beratung dar. Die Plattform ersetzt keine Anzeige bei der Polizei oder professionelle Hilfeangebote.</p>
+        <h3>5. Nutzung der Daten</h3>
+        <p>Die anonymisierten Inhalte und Standortdaten können zu statistischen, wissenschaftlichen oder gesellschaftspolitischen Zwecken ausgewertet und in aggregierter Form (z. B. Berichte, Karten, Visualisierungen) veröffentlicht oder an öffentliche Stellen weitergegeben werden.</p>
+        </div>
+      </div>
+      <div class="menuOverlayBottomBorder" aria-hidden="true"></div>
+    </div>
+
+    <div id="modal" class="modal" aria-hidden="true">
+      <div class="backdrop" data-close></div>
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="dialogHeader">
+          <div>
+            <div id="modalTitle" class="title">Add note</div>
+            <div id="clickedCoords" class="subtitle"></div>
+          </div>
+          <button id="closeBtn" type="button" class="iconBtn" aria-label="Close">
+            ✕
+          </button>
+        </div>
+
+        <form id="noteForm" class="form">
+          <label class="field">
+            <span class="label">What happened?</span>
+            <textarea
+              id="noteInput"
+              name="note"
+              rows="5"
+              placeholder="Write your note…"
+              required
+            ></textarea>
+          </label>
+
+          <div class="actions">
+            <button id="sendBtn" type="submit">Save pin</button>
+            <button id="cancelBtn" type="button" class="secondary">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

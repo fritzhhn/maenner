@@ -1,0 +1,748 @@
+:root {
+  --bg: #0b1020;
+  --panel: rgba(255, 255, 255, 0.08);
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.7);
+  --border: rgba(255, 255, 255, 0.14);
+  --accent: #66e3ff;
+  --shadow-bottom-right: 2px 2px 4px rgba(0, 0, 0, 0.22), 4px 4px 6px rgba(0, 0, 0, 0.14);
+  /* Left-control greens – same hue, hover border/icon slightly desaturated so it matches default look */
+  --green-light: #68997a;
+  --green-dark: #057335;
+  --green-light-muted: #7a9a8a; /* less saturated for hover icon/border on dark green */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Helvetica, Arial, sans-serif;
+  color: var(--text);
+  background: radial-gradient(1200px 600px at 20% 10%, #18203c, var(--bg));
+}
+
+.form {
+  display: grid;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+  padding: 10px 12px;
+  outline: none;
+  box-shadow: none;
+}
+
+input:focus,
+textarea:focus {
+  border-color: rgba(102, 227, 255, 0.6);
+  box-shadow: none;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+button {
+  border: 1px solid rgba(102, 227, 255, 0.35);
+  background: rgba(102, 227, 255, 0.12);
+  color: var(--text);
+  padding: 10px 12px;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+button:hover {
+  background: rgba(102, 227, 255, 0.18);
+}
+
+button.secondary {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.map {
+  width: 100vw;
+  height: 100vh;
+}
+
+.fullscreen {
+  position: fixed;
+  inset: 0;
+}
+
+/* Vector style handles colors directly, no filter needed */
+
+/* MapLibre popup styling */
+/* When popup opens below marker (anchor-top), pull it up so it sits right under the pin */
+.maplibregl-popup-anchor-top,
+.maplibregl-popup-anchor-top-left,
+.maplibregl-popup-anchor-top-right {
+  margin-top: -60px;
+}
+/* Popup tip (arrow) – triangle via border trick */
+.maplibregl-popup-tip {
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+}
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip,
+.maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,
+.maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip {
+  border-top-color: #ef95bd !important;
+}
+.maplibregl-popup-anchor-top .maplibregl-popup-tip,
+.maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
+.maplibregl-popup-anchor-top-right .maplibregl-popup-tip {
+  border-bottom-color: #ef95bd !important;
+}
+
+.maplibregl-popup-anchor-left .maplibregl-popup-tip {
+  border-right-color: #ef95bd !important;
+}
+
+.maplibregl-popup-anchor-right .maplibregl-popup-tip {
+  border-left-color: #ef95bd !important;
+}
+
+/* Style the close button (X) – no shadow */
+.maplibregl-popup-close-button {
+  color: #000;
+  font-size: 14px;
+  padding: 2px 4px;
+  top: 2px;
+  right: 2px;
+  left: auto;
+  box-shadow: none !important;
+}
+
+.maplibregl-popup-close-button:hover {
+  background-color: transparent;
+  opacity: 1;
+}
+
+/* Marker pin color – override SVG internal .st0 fill (pin1/pin2 are namespaced to .pin1-st0, .pin2-st0) */
+.maplibregl-marker [data-marker="true"] .pin1-st0,
+.maplibregl-marker [data-marker="true"] .pin2-st0,
+.maplibregl-marker [data-marker="true"] svg path,
+.maplibregl-marker [data-marker="true"] svg polygon,
+.maplibregl-marker [data-marker="true"] svg line,
+.maplibregl-marker [data-marker="true"] svg circle,
+.maplibregl-marker [data-preview-marker="true"] .pin3-st0,
+.maplibregl-marker [data-preview-marker="true"] svg path,
+.maplibregl-marker [data-preview-marker="true"] svg polygon,
+.maplibregl-marker [data-preview-marker="true"] svg line,
+.maplibregl-marker [data-preview-marker="true"] svg circle {
+  fill: #cd1719 !important;
+  stroke: none !important;
+}
+
+.leftControls {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Location button: bottom aligns with zoom-in top (14px + 93px zoom height = 107px from bottom) */
+.rightControls {
+  position: fixed;
+  bottom: 107px;
+  right: 14px;
+  z-index: 1000;
+}
+
+.hamburgerSpacer {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.hamburgerBtn,
+.locationBtn {
+  border: 2px solid var(--green-dark);
+  background: var(--green-light);
+  backdrop-filter: blur(10px);
+  color: var(--green-dark);
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  box-sizing: border-box;
+  box-shadow: none;
+}
+
+/* When menu is open, hamburger (now ×) stays on top so it’s visible and clickable */
+.hamburgerBtn {
+  position: relative;
+  background: #ef95bd;
+  border: 1px solid black;
+  transition: background 0.2s ease;
+}
+
+.hamburgerBtn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -1px;
+  width: 1px;
+  height: 48px;
+  background: black;
+  pointer-events: none;
+  display: none;
+}
+
+.hamburgerIcon svg rect,
+.hamburgerIcon svg path {
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.hamburgerIcon svg rect {
+  fill: black;
+}
+
+.hamburgerBtn.menuOpen {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 1002;
+}
+
+.locationBtn {
+  background: #ef95bd;
+  border: 1px solid black;
+  transition: background 0.2s ease;
+}
+
+.locationIcon svg circle,
+.locationIcon svg line {
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.locationIcon svg circle,
+.locationIcon svg line {
+  fill: black;
+  stroke: black;
+}
+
+.locationBtn:hover {
+  background: black;
+  border-color: black;
+}
+
+.locationBtn:hover .locationIcon svg circle,
+.locationBtn:hover .locationIcon svg line {
+  fill: #ef95bd !important;
+  stroke: #ef95bd !important;
+}
+
+.hamburgerBtn:hover {
+  background: black;
+  border-color: black;
+}
+
+.hamburgerBtn:hover .hamburgerIcon svg rect {
+  fill: #ef95bd !important;
+}
+
+.hamburgerBtn:hover .hamburgerIcon svg path {
+  stroke: #ef95bd !important;
+}
+
+
+.hamburgerBtn:disabled,
+.locationBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hamburgerIcon {
+  width: 24px;
+  height: 18px;
+  display: inline-block;
+  position: relative;
+}
+
+.hamburgerIcon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.locationIcon {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+}
+
+.locationIcon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+
+/* MapLibre bottom-right: zoom at bottom with 14px spacing; attribution on same height, zoom left / info right */
+.maplibregl-ctrl-bottom-right {
+  display: flex !important;
+  flex-direction: row-reverse !important;
+  flex-wrap: wrap !important;
+  align-items: flex-end !important;
+  justify-content: flex-end !important;
+  gap: 0 10px !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  padding: 0 !important;
+}
+
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl {
+  margin: 0 14px 14px 0 !important;
+  float: none !important;
+}
+
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl-group {
+  border: 1px solid black !important;
+  border-radius: 0 !important;
+  overflow: hidden;
+  box-shadow: none !important;
+  background: #ef95bd !important;
+}
+
+/* MapLibre attribution (info): same height as zoom, no extra margin-right */
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib {
+  margin-right: 0 !important;
+}
+
+/* MapLibre bottom-left: attribution position only (styling left default) */
+.maplibregl-ctrl-bottom-left {
+  padding: 0 0 14px 14px !important;
+}
+.maplibregl-ctrl-bottom-left .maplibregl-ctrl {
+  margin: 0 !important;
+  float: none !important;
+}
+/* Compact attribution: open to the right */
+.maplibregl-ctrl-attrib.maplibregl-compact {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  max-width: 90vw !important;
+}
+
+.maplibregl-ctrl-group button {
+  width: 46px !important;
+  height: 46px !important;
+  min-width: 46px !important;
+  min-height: 46px !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  border-bottom: 1px solid black !important;
+  color: black !important;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.maplibregl-ctrl-group button:last-child {
+  border-bottom: none !important;
+}
+
+.maplibregl-ctrl-group button:hover {
+  background: black !important;
+  border-bottom-color: black !important;
+  color: #ef95bd !important;
+}
+
+/* Style MapLibre zoom control icons - hide default icons and use custom SVG */
+.maplibregl-ctrl-zoom-in .maplibregl-ctrl-icon,
+.maplibregl-ctrl-zoom-out .maplibregl-ctrl-icon {
+  display: none !important;
+}
+
+.maplibregl-ctrl-zoom-in::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='12' y1='6' x2='12' y2='18' stroke='black' stroke-width='1' stroke-linecap='round'/%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='black' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.maplibregl-ctrl-zoom-in:hover::before {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='12' y1='6' x2='12' y2='18' stroke='%23ef95bd' stroke-width='1' stroke-linecap='round'/%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='%23ef95bd' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.maplibregl-ctrl-zoom-out::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='black' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.maplibregl-ctrl-zoom-out:hover::before {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='%23ef95bd' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.maplibregl-ctrl-group button + button {
+  border-top: none;
+}
+
+.maplibregl-ctrl-group button:first-child,
+.maplibregl-ctrl-group button:last-child {
+  border-radius: 0 !important;
+}
+
+/* Menu like queeringthemap.com: top-left at button, opens instantly, above controls */
+.menuOverlay {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  width: 640px;
+  max-width: calc(100vw - 28px);
+  max-height: calc(100vh - 28px);
+  z-index: 1001;
+  display: none;
+  flex-direction: column;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.menuOverlay.open {
+  display: flex;
+}
+
+.menuOverlayScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.menuOverlayScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.menuOverlayBottomBorder {
+  flex-shrink: 0;
+  width: 100%;
+  height: 1px;
+  margin-top: -1px;
+  background: black;
+  pointer-events: none;
+}
+
+.menuOverlay.open::before {
+  content: "";
+  position: absolute;
+  left: 47px;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: black;
+  pointer-events: none;
+  z-index: 1002;
+}
+
+.menuOverlay.open::after {
+  content: "";
+  position: fixed;
+  left: 61px;
+  top: 61px;
+  width: min(593px, calc(100vw - 75px));
+  height: 1px;
+  background: black;
+  pointer-events: none;
+  z-index: 1002;
+}
+
+.menuOverlay.open .menuContent::before {
+  content: "";
+  position: fixed;
+  left: 61px;
+  top: 14px;
+  width: min(592px, calc(100vw - 76px));
+  height: 47px;
+  background: #ef95bd;
+  border-top: 1px solid black;
+  border-right: 1px solid black;
+  z-index: 1002;
+  pointer-events: none;
+}
+
+.menuContent {
+  margin: 0;
+  padding: 56px 24px 24px 60px; /* top padding so text sits below the hamburger button; more left = text to the right */
+  color: #000;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: #ef95bd;
+  border: 1px solid black;
+}
+
+.menuContent h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: #000;
+}
+
+.menuContent h2:first-child {
+  margin-top: 0;
+}
+
+.menuContent h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 16px 0 4px;
+  color: #000;
+}
+
+.menuContent h3:first-child {
+  margin-top: 0;
+}
+
+.menuContent ul {
+  margin: 0 0 4px;
+  padding-left: 20px;
+}
+
+.menuContent li {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 2px;
+}
+
+.menuContent a {
+  color: #000;
+  text-decoration: underline;
+}
+
+.menuContent p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #000;
+  margin: 0 0 4px;
+}
+
+.brandCenter {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: fit-content;
+  max-width: calc(100vw - 28px);
+  pointer-events: none;
+  text-align: center;
+}
+
+.brandCenter strong {
+  font-size: 36px;
+  font-weight: bold;
+  color: #68997a;
+  -webkit-text-stroke: 5px #057335;
+  paint-order: stroke fill;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+}
+
+.modal.open {
+  display: block;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.dialog {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  transform: translateX(-50%);
+  width: min(520px, calc(100vw - 28px));
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  padding: 12px;
+  box-shadow: none;
+}
+
+.dialogHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.iconBtn {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 6px 10px;
+  line-height: 1;
+  box-shadow: none;
+}
+
+/* Popup container – no rounded corners */
+.maplibregl-popup {
+  border-radius: 0;
+}
+/* MapLibre popup – no rounded corners, pink background, 1px black border */
+.maplibregl-popup-content {
+  font: inherit;
+  color: #0b1020;
+  max-width: 320px;
+  border-radius: 0;
+  background: #ef95bd;
+  border: 1px solid #000;
+}
+
+.maplibregl-popup-content h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.maplibregl-popup-content p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+/* Add-note form inside popup – same container as marker popup */
+.addNotePopupForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 200px;
+  margin-top: 12px;
+}
+
+.addNotePopupForm textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 8px 10px;
+  border: 1px solid #000;
+  border-radius: 0;
+  font: inherit;
+  color: #0b1020;
+  background: #ef95bd;
+  resize: vertical;
+  box-shadow: none;
+}
+
+.addNotePopupForm button[type="submit"] {
+  align-self: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #ef95bd;
+  color: #000;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: none;
+  box-sizing: border-box;
+  position: relative;
+  font-size: 0;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.addNotePopupForm button[type="submit"]::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='12' y1='6' x2='12' y2='18' stroke='black' stroke-width='1' stroke-linecap='round'/%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='black' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: opacity 0.2s ease;
+}
+
+.addNotePopupForm button[type="submit"]:hover {
+  background: #000;
+  color: #ef95bd;
+  border-color: black;
+}
+
+.addNotePopupForm button[type="submit"]:hover::before {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cline x1='12' y1='6' x2='12' y2='18' stroke='%23ef95bd' stroke-width='1' stroke-linecap='round'/%3E%3Cline x1='6' y1='12' x2='18' y2='12' stroke='%23ef95bd' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.addNotePopupForm textarea:focus {
+  box-shadow: none;
+}
+
+@media (max-width: 920px) {
+  .brandCenter {
+    width: fit-content;
+  }
+}
