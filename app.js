@@ -365,10 +365,19 @@ function openAddNotePopup(lngLat) {
   addNotePopup.on("close", () => {
     closeAddNotePopup();
   });
-  setTimeout(() => {
-    const ta = content.querySelector("textarea");
-    if (ta) ta.focus();
-  }, 100);
+  // Focus when popup is open and layout is done so the caret sits at top-left of textarea
+  addNotePopup.once("open", () => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const ta = content.querySelector("textarea");
+        if (ta) {
+          ta.value = "";
+          ta.focus();
+          ta.setSelectionRange(0, 0);
+        }
+      });
+    });
+  });
 }
 
 function closeAddNotePopup() {
@@ -680,17 +689,15 @@ function initMap() {
         allLayers.forEach(layer => {
           const layerId = layer.id;
           // Check if layer name suggests it might be green/nature
-          if ((layerId.includes("park") || 
-               layerId.includes("wood") || 
-               layerId.includes("grass") || 
+          if ((layerId.includes("park") ||
+               layerId.includes("wood") ||
+               layerId.includes("grass") ||
                layerId.includes("forest") ||
                layerId.includes("cemetery") ||
                layerId.includes("nature") ||
                layerId.includes("green")) &&
               layer.type === "fill" &&
               !greenLayers.includes(layerId)) {
-            // This might be a green layer we missed
-            console.log("Found potential green layer:", layerId);
             try {
               map.setPaintProperty(layerId, "fill-color", parkColor);
               if (map.getPaintProperty(layerId, "fill-opacity") !== undefined) {
@@ -722,24 +729,6 @@ function initMap() {
           }
         }
       });
-      
-      // Log available layers and their properties for debugging
-      if (style && style.layers) {
-        const relevantLayers = style.layers.filter(l => 
-          l.id.includes("building") || l.id.includes("water") || l.id.includes("land") || l.id.includes("park") || l.id.includes("background")
-        );
-        console.log("Available layers:", relevantLayers.map(l => l.id));
-        
-        // Log landcover/landuse layer details to see what classes exist
-        const landcoverLayer = style.layers.find(l => l.id === "landcover" || l.id === "landuse");
-        if (landcoverLayer) {
-          console.log(`Layer ${landcoverLayer.id} details:`, {
-            type: landcoverLayer.type,
-            source: landcoverLayer.source,
-            filter: landcoverLayer.filter
-          });
-        }
-      }
       
     } catch (error) {
       console.error("Error applying custom colors:", error);

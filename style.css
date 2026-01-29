@@ -30,11 +30,8 @@ body {
 }
 
 body {
-  overflow-x: hidden;
-}
-
-body {
   margin: 0;
+  overflow-x: hidden;
   font-family: Helvetica, Arial, sans-serif;
   color: var(--text);
   background: radial-gradient(1200px 600px at 20% 10%, #18203c, var(--bg));
@@ -65,7 +62,7 @@ textarea {
   padding: 10px 12px;
   outline: none;
   box-shadow: none;
-  font-size: 16px; /* prevent iOS Safari zoom on focus */
+  font-size: 14px;
 }
 
 input:focus,
@@ -204,12 +201,12 @@ button.secondary {
   gap: 10px;
 }
 
-/* Location button: bottom aligns with zoom-in top (14px + 93px zoom height = 107px from bottom) */
+/* Location button: bottom aligns with zoom-in top (14px + 48+48 zoom = 110px from bottom) */
 .rightControls {
   position: fixed;
-  bottom: 107px;
+  bottom: 110px;
   right: 14px;
-  bottom: calc(107px + env(safe-area-inset-bottom, 0));
+  bottom: calc(110px + env(safe-area-inset-bottom, 0));
   right: calc(14px + env(safe-area-inset-right, 0));
   z-index: 1000;
 }
@@ -233,16 +230,25 @@ button.secondary {
   justify-content: center;
   width: 48px;
   height: 48px;
+  min-width: 48px;
+  min-height: 48px;
   box-sizing: border-box;
   box-shadow: none;
+  flex-shrink: 0;
 }
 
 /* When menu is open, hamburger (now ×) stays on top so it’s visible and clickable */
 .hamburgerBtn {
   position: relative;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  box-sizing: border-box !important;
   background: #ef95bd;
   border: 1px solid black;
   transition: background 0.2s ease;
+  flex-shrink: 0;
 }
 
 .hamburgerBtn::after {
@@ -271,12 +277,20 @@ button.secondary {
   top: calc(14px + env(safe-area-inset-top, 0));
   left: calc(14px + env(safe-area-inset-left, 0));
   z-index: 1002;
+  border-right-width: 0;
+  border-bottom-width: 0;
 }
 
 .locationBtn {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  box-sizing: border-box !important;
   background: #ef95bd;
   border: 1px solid black;
   transition: background 0.2s ease;
+  flex-shrink: 0;
 }
 
 .locationIcon svg circle,
@@ -350,23 +364,32 @@ button.secondary {
 /* MapLibre default (maplibre-gl.css) uses position:absolute for controls.
    We override to fixed so zoom/flyTo doesn’t move or scale the control UI. */
 .maplibregl-ctrl-bottom-right {
+  position: fixed !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  bottom: calc(0px + env(safe-area-inset-bottom, 0)) !important;
+  right: calc(0px + env(safe-area-inset-right, 0)) !important;
   display: flex !important;
   flex-direction: row-reverse !important;
   flex-wrap: wrap !important;
   align-items: flex-end !important;
   justify-content: flex-end !important;
   gap: 0 10px !important;
-  bottom: 0 !important;
-  right: 0 !important;
   padding: 0 env(safe-area-inset-right, 0) calc(14px + env(safe-area-inset-bottom, 0)) 0 !important;
+  transform: none !important;
 }
 
+/* No bottom margin so zoom stack top (110px) meets location button bottom (110px) */
 .maplibregl-ctrl-bottom-right .maplibregl-ctrl {
-  margin: 0 14px 14px 0 !important;
+  margin: 0 14px 0 0 !important;
   float: none !important;
 }
 
 .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group {
+  position: relative !important;
+  transform: none !important;
+  width: 48px !important;
+  flex-shrink: 0 !important;
   border: 1px solid black !important;
   border-radius: 0 !important;
   overflow: hidden;
@@ -380,7 +403,13 @@ button.secondary {
 }
 
 .maplibregl-ctrl-bottom-left {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  bottom: calc(0px + env(safe-area-inset-bottom, 0)) !important;
+  left: calc(0px + env(safe-area-inset-left, 0)) !important;
   padding: 0 0 calc(14px + env(safe-area-inset-bottom, 0)) calc(14px + env(safe-area-inset-left, 0)) !important;
+  transform: none !important;
 }
 .maplibregl-ctrl-bottom-left .maplibregl-ctrl {
   margin: 0 !important;
@@ -395,12 +424,15 @@ button.secondary {
 }
 
 .maplibregl-ctrl-group button {
-  width: 46px !important;
-  height: 46px !important;
-  min-width: 46px !important;
-  min-height: 46px !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  max-width: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
   padding: 0 !important;
   box-sizing: border-box !important;
+  flex-shrink: 0 !important;
   background: transparent !important;
   border: none !important;
   border-radius: 0 !important;
@@ -409,6 +441,7 @@ button.secondary {
   cursor: pointer;
   position: relative;
   transition: background 0.2s ease;
+  transform: none !important;
 }
 
 .maplibregl-ctrl-group button:last-child {
@@ -476,26 +509,75 @@ button.secondary {
   border-radius: 0 !important;
 }
 
-/* Menu like queeringthemap.com: top-left at button, opens instantly, above controls */
+/* Menu: 4 regions (X cell, horizontal bar, vertical bar, content), 1px black borders, responsive */
 .menuOverlay {
+  --menu-btn-size: 48px;
   position: fixed;
   top: 14px;
   left: 14px;
   top: calc(14px + env(safe-area-inset-top, 0));
   left: calc(14px + env(safe-area-inset-left, 0));
-  width: 640px;
+  width: min(640px, calc(100vw - 28px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)));
   max-width: calc(100vw - 28px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0));
+  min-width: calc(var(--menu-btn-size) + 2px + 80px);
+  height: min(80vh, calc(100vh - 28px - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0)));
   max-height: calc(100vh - 28px - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0));
   z-index: 1001;
   display: none;
-  flex-direction: column;
-  background: transparent;
-  border: none;
+  grid-template-columns: minmax(var(--menu-btn-size), var(--menu-btn-size)) minmax(0, 1fr);
+  grid-template-rows: minmax(var(--menu-btn-size), var(--menu-btn-size)) minmax(0, 1fr) auto;
+  background: #ef95bd;
+  border: 1px solid black;
+  border-bottom-width: 0;
+  box-sizing: border-box;
   box-shadow: none;
+  overflow: visible;
 }
 
 .menuOverlay.open {
+  display: grid;
+}
+
+/* 1) X cell – same size as button, never shrinks */
+.menuOverlayXCell {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: var(--menu-btn-size);
+  min-height: var(--menu-btn-size);
+  background: #ef95bd;
+  box-shadow: inset -1px 0 0 black, inset 0 -1px 0 black;
+  box-sizing: border-box;
+}
+
+/* 2) Horizontal bar – same x-axis as button, extends right; only this and content shrink with width */
+.menuOverlayHorizontalBar {
+  grid-column: 2;
+  grid-row: 1;
+  background: #ef95bd;
+  box-shadow: inset 0 -1px 0 black;
+  box-sizing: border-box;
+}
+
+/* 3) Vertical bar – same width as button, never shrinks in width */
+.menuOverlayVerticalBar {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: var(--menu-btn-size);
+  background: #ef95bd;
+  box-shadow: inset -1px 0 0 black;
+  box-sizing: border-box;
+}
+
+/* 4) Large content area; only this and horizontal bar shrink with width/height */
+.menuOverlayContent {
+  grid-column: 2;
+  grid-row: 2;
+  min-width: 0;
+  min-height: 0;
   display: flex;
+  flex-direction: column;
+  background: #ef95bd;
+  box-sizing: border-box;
 }
 
 .menuOverlayScroll {
@@ -504,6 +586,8 @@ button.secondary {
   overflow-y: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
 }
 
 .menuOverlayScroll::-webkit-scrollbar {
@@ -511,61 +595,33 @@ button.secondary {
 }
 
 .menuOverlayBottomBorder {
-  flex-shrink: 0;
-  width: 100%;
-  height: 1px;
-  margin-top: -1px;
-  background: black;
-  pointer-events: none;
-}
-
-.menuOverlay.open::before {
-  content: "";
-  position: absolute;
-  left: 47px;
-  top: 0;
-  width: 1px;
-  height: 100%;
-  background: black;
-  pointer-events: none;
-  z-index: 1002;
-}
-
-.menuOverlay.open::after {
-  content: "";
-  position: fixed;
-  left: 61px;
-  top: 61px;
-  width: min(593px, calc(100vw - 75px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)));
+  grid-column: 1 / -1;
+  grid-row: 3;
   height: 1px;
   background: black;
-  pointer-events: none;
-  z-index: 1002;
-}
-
-.menuOverlay.open .menuContent::before {
-  content: "";
-  position: fixed;
-  left: 61px;
-  top: calc(14px + env(safe-area-inset-top, 0));
-  width: min(592px, calc(100vw - 76px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)));
-  height: 47px;
-  background: #ef95bd;
-  border-top: 1px solid black;
-  border-right: 1px solid black;
-  z-index: 1002;
   pointer-events: none;
 }
 
 .menuContent {
   margin: 0;
-  padding: 56px 24px 24px 60px; /* top padding so text sits below the hamburger button; more left = text to the right */
+  padding: 0 24px 24px 12px;
   color: #000;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-height: 0;
+}
+
+/* Sticky bar: 1px strip so text disappears exactly on the border to the horizontal bar, not earlier */
+.menuContentHeader {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 1px;
+  margin: 0 -24px 0 -12px;
+  padding: 0;
   background: #ef95bd;
-  border: 1px solid black;
 }
 
 .menuContent h2 {
@@ -744,11 +800,14 @@ button.secondary {
   border: 1px solid #000;
   border-radius: 0;
   font: inherit;
-  font-size: 16px; /* prevent iOS Safari from zooming the whole page on focus */
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: left;
   color: #0b1020;
   background: #ef95bd;
   resize: vertical;
   box-shadow: none;
+  display: block;
 }
 
 .addNotePopupForm button[type="submit"] {
@@ -805,48 +864,21 @@ button.secondary {
   }
 }
 
-/* Phone */
+/* Phone – same 14px spacing as base so UI does not jump at breakpoint */
 @media (max-width: 480px) {
-  .leftControls,
-  .hamburgerBtn.menuOpen {
-    top: calc(10px + env(safe-area-inset-top, 0));
-    left: calc(10px + env(safe-area-inset-left, 0));
-  }
-  .rightControls {
-    bottom: calc(107px + env(safe-area-inset-bottom, 0));
-    right: calc(10px + env(safe-area-inset-right, 0));
-  }
-  .maplibregl-ctrl-bottom-right {
-    padding: 0 env(safe-area-inset-right, 0) calc(10px + env(safe-area-inset-bottom, 0)) 0 !important;
-  }
-  .maplibregl-ctrl-bottom-right .maplibregl-ctrl {
-    margin: 0 10px 10px 0 !important;
-  }
-  .maplibregl-ctrl-bottom-left {
-    padding: 0 0 calc(10px + env(safe-area-inset-bottom, 0)) calc(10px + env(safe-area-inset-left, 0)) !important;
-  }
   .menuOverlay {
-    top: calc(10px + env(safe-area-inset-top, 0));
-    left: calc(10px + env(safe-area-inset-left, 0));
-    max-width: calc(100vw - 20px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0));
-    max-height: calc(100vh - 20px - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0));
-  }
-  .menuOverlay.open::before {
-    left: 43px;
-  }
-  .menuOverlay.open::after {
-    left: 55px;
-    top: 55px;
-    width: calc(100vw - 65px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0));
-  }
-  .menuOverlay.open .menuContent::before {
-    left: 55px;
-    top: calc(10px + env(safe-area-inset-top, 0));
-    width: calc(100vw - 66px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0));
-    height: 43px;
+    width: min(640px, calc(100vw - 28px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)));
+    max-width: calc(100vw - 28px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0));
+    min-width: calc(var(--menu-btn-size) + 2px + 80px);
+    height: min(80vh, calc(100vh - 28px - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0)));
+    max-height: calc(100vh - 28px - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0));
   }
   .menuContent {
-    padding: 44px 14px 18px 44px;
+    padding: 0 14px 18px 12px;
+  }
+  .menuContentHeader {
+    height: 1px;
+    margin: 0 -14px 0 -12px;
   }
   .dialog {
     width: min(100%, calc(100vw - 20px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)));
@@ -860,27 +892,23 @@ button.secondary {
   }
 }
 
-/* Small phone – keep touch targets 44px+ */
+/* Small phone */
 @media (max-width: 380px) {
-  .hamburgerBtn,
-  .locationBtn,
-  .maplibregl-ctrl-group button {
-    min-width: 44px !important;
-    min-height: 44px !important;
-    width: 44px !important;
-    height: 44px !important;
-  }
-  /* Zoom stack = 44+44+10 margin; align location button above it */
+  /* Zoom stack = 48+48; location button above it */
   .rightControls {
-    bottom: calc(98px + env(safe-area-inset-bottom, 0));
+    bottom: calc(110px + env(safe-area-inset-bottom, 0));
   }
   .brandCenter strong {
     font-size: 18px;
     -webkit-text-stroke: 2px #057335;
   }
   .menuContent {
-    padding: 42px 12px 16px 40px;
+    padding: 0 12px 16px 12px;
     font-size: 14px;
+  }
+  .menuContentHeader {
+    height: 1px;
+    margin: 0 -12px 0 -12px;
   }
   .menuContent h2 {
     font-size: 16px;

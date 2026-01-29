@@ -5,10 +5,11 @@
     <!-- Prevent browser page zoom so only the map zooms (like queeringthemap.com / map apps) -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
     <title>MÄNNER BELÄSTIGEN</title>
+    <meta name="description" content="Anonym Erfahrungen mit sexueller Belästigung teilen und auf einer Karte sichtbar machen. Ein sicherer Raum für Frauen*." />
 
     <link
       rel="stylesheet"
-      href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css"
+      href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"
     />
     <link rel="stylesheet" href="./style.css" />
   </head>
@@ -35,9 +36,14 @@
     </div>
 
     <div id="menuOverlay" class="menuOverlay" aria-hidden="true">
-      <div class="menuOverlayScroll">
-        <div class="menuContent">
-        <h2>ABOUT</h2>
+      <div class="menuOverlayXCell" aria-hidden="true"></div>
+      <div class="menuOverlayHorizontalBar" aria-hidden="true"></div>
+      <div class="menuOverlayVerticalBar" aria-hidden="true"></div>
+      <div class="menuOverlayContent">
+        <div class="menuOverlayScroll">
+          <div class="menuContent">
+            <div class="menuContentHeader" aria-hidden="true"></div>
+            <h2>ABOUT</h2>
         <p>Diese Plattform wurde geschaffen, um Frauen* einen sicheren Raum zu geben, ihre Erfahrungen mit sexueller Belästigung anonym zu teilen. Zu oft bleiben solche Erlebnisse unsichtbar, werden verharmlost oder verschwiegen – wir möchten das ändern.</p>
         <p>Durch das anonyme Teilen von Erfahrungen und das Sammeln von Standorten auf einer Karte machen wir sichtbar, wo sexuelle Belästigung im öffentlichen Raum stattfindet. Nicht, um Angst zu verbreiten – sondern um Bewusstsein zu schaffen, Solidarität zu stärken und Veränderung anzustoßen.</p>
         <h3>Warum eine Karte?</h3>
@@ -116,6 +122,7 @@
         <p>Die Inhalte auf dieser Plattform stellen keine rechtliche oder psychologische Beratung dar. Die Plattform ersetzt keine Anzeige bei der Polizei oder professionelle Hilfeangebote.</p>
         <h3>5. Nutzung der Daten</h3>
         <p>Die anonymisierten Inhalte und Standortdaten können zu statistischen, wissenschaftlichen oder gesellschaftspolitischen Zwecken ausgewertet und in aggregierter Form (z. B. Berichte, Karten, Visualisierungen) veröffentlicht oder an öffentliche Stellen weitergegeben werden.</p>
+          </div>
         </div>
       </div>
       <div class="menuOverlayBottomBorder" aria-hidden="true"></div>
@@ -154,7 +161,7 @@
       </div>
     </div>
 
-    <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
-    <script src="./app.js?v=2"></script>
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" defer></script>
+    <script src="./app.js?v=2" defer></script>
   </body>
 </html>
