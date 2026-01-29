@@ -99,22 +99,28 @@ button.secondary {
   background: rgba(255, 255, 255, 0.08);
 }
 
-.map {
-  width: 100vw;
+/* Queering the Map style: full-screen wrapper (fixed), map absolute inside so only map content zooms */
+.map-wrapper {
+  position: fixed;
+  inset: 0;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   height: 100dvh;
   height: -webkit-fill-available;
-  /* Prevent browser zoom on map: only the map zooms, not the page/UI */
+  touch-action: none; /* so only the map zooms, not the page */
+}
+
+.map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* MDN: disable browser gestures so only the map zooms */
   touch-action: none;
 }
 
-.fullscreen {
-  position: fixed;
-  inset: 0;
-}
-
-/* Map canvas: receive touch for pan/zoom; no browser double-tap zoom */
+/* MapLibre sets touch-action on canvas via classes; we enforce none so browser never zooms page on map. */
 .maplibregl-canvas-container,
 .maplibregl-canvas {
   touch-action: none;
@@ -341,21 +347,18 @@ button.secondary {
 }
 
 
-/* MapLibre bottom-right: pin to viewport so zoom/flyTo doesn't move or scale UI */
+/* MapLibre default (maplibre-gl.css) uses position:absolute for controls.
+   We override to fixed so zoom/flyTo doesn’t move or scale the control UI. */
 .maplibregl-ctrl-bottom-right {
-  position: fixed !important;
-  top: auto !important;
-  left: auto !important;
-  bottom: 0 !important;
-  right: 0 !important;
   display: flex !important;
   flex-direction: row-reverse !important;
   flex-wrap: wrap !important;
   align-items: flex-end !important;
   justify-content: flex-end !important;
   gap: 0 10px !important;
+  bottom: 0 !important;
+  right: 0 !important;
   padding: 0 env(safe-area-inset-right, 0) calc(14px + env(safe-area-inset-bottom, 0)) 0 !important;
-  transform: none !important;
 }
 
 .maplibregl-ctrl-bottom-right .maplibregl-ctrl {
@@ -376,15 +379,8 @@ button.secondary {
   margin-right: 0 !important;
 }
 
-/* MapLibre bottom-left: pin to viewport so zoom/flyTo doesn't move or scale UI */
 .maplibregl-ctrl-bottom-left {
-  position: fixed !important;
-  top: auto !important;
-  right: auto !important;
-  bottom: 0 !important;
-  left: 0 !important;
   padding: 0 0 calc(14px + env(safe-area-inset-bottom, 0)) calc(14px + env(safe-area-inset-left, 0)) !important;
-  transform: none !important;
 }
 .maplibregl-ctrl-bottom-left .maplibregl-ctrl {
   margin: 0 !important;

@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- Prevent browser page zoom so only the map zooms (like queeringthemap.com / map apps) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
     <title>MÄNNER BELÄSTIGEN</title>
 
     <link
@@ -12,7 +13,10 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <div id="map" class="map fullscreen" role="application" aria-label="Map"></div>
+    <!-- Queering the Map style: full-screen wrapper, map absolute inside so only map content zooms -->
+    <div id="map-wrapper" class="map-wrapper">
+      <div id="map" class="map" role="application" aria-label="Map"></div>
+    </div>
 
     <div class="brandCenter" aria-hidden="true">
       <strong>MÄNNER BELÄSTIGEN</strong>
