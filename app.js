@@ -1,6 +1,8 @@
 /* global maplibregl */
 
 const STORAGE_KEY = "berlin-map-notes:v1";
+/** Base path for API (e.g. "api" → api/notes.php). Empty string if notes.php is at site root. */
+const API_BASE = "api";
 
 const $ = (id) => document.getElementById(id);
 /** @type {HTMLElement|null} */
@@ -116,6 +118,36 @@ function loadNotes() {
         }
         return { ...n, createdAt };
       })
+      .slice(0, 500);
+  } catch {
+    return [];
+  }
+}
+
+/** Fetch notes from API (same shape as loadNotes). Returns [] on error so caller can fall back to localStorage. */
+async function fetchNotesFromApi() {
+  const url = API_BASE ? `${API_BASE}/notes.php` : "notes.php";
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!Array.isArray(data)) return [];
+    return data
+      .filter(
+        (n) =>
+          n &&
+          typeof n.id === "string" &&
+          typeof n.note === "string" &&
+          (typeof n.lng === "number" || typeof n.lng === "string") &&
+          (typeof n.lat === "number" || typeof n.lat === "string"),
+      )
+      .map((n) => ({
+        id: n.id,
+        note: String(n.note),
+        lng: Number(n.lng),
+        lat: Number(n.lat),
+        createdAt: typeof n.createdAt === "number" ? n.createdAt : (typeof n.created_at === "number" ? n.created_at : Date.now()),
+      }))
       .slice(0, 500);
   } catch {
     return [];
@@ -318,6 +350,8 @@ function createPreviewMarkerElement() {
   return el;
 }
 
+const MAX_NOTE_CHARS = 3000;
+
 /** Build form content for the add-note popup (same look as marker popup). */
 function createAddNotePopupContent() {
   const form = document.createElement("form");
@@ -327,10 +361,17 @@ function createAddNotePopupContent() {
   textarea.rows = 5;
   textarea.name = "note";
   textarea.setAttribute("required", "");
+  textarea.maxLength = MAX_NOTE_CHARS;
+  textarea.setAttribute("aria-describedby", "addNoteCharHint");
+  const hint = document.createElement("span");
+  hint.id = "addNoteCharHint";
+  hint.className = "addNoteWordHint";
+  hint.textContent = `Max ${MAX_NOTE_CHARS} characters`;
   const btn = document.createElement("button");
   btn.type = "submit";
   btn.textContent = "+";
   form.appendChild(textarea);
+  form.appendChild(hint);
   form.appendChild(btn);
   // Stop click from bubbling to map so closeOnClick doesn't close popup before submit
   form.addEventListener("click", (e) => e.stopPropagation());
@@ -392,17 +433,32 @@ function closeAddNotePopup() {
   pendingPoint = null;
 }
 
-function submitNoteFromPopup(noteText, buttonEl) {
+async function submitNoteFromPopup(noteText, buttonEl) {
   if (!noteText || !pendingPoint) return;
   buttonEl.disabled = true;
   setStatus("");
   try {
+    const url = API_BASE ? `${API_BASE}/notes.php` : "notes.php";
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        note: noteText,
+        lng: pendingPoint.lng,
+        lat: pendingPoint.lat,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setStatus(data.error || `Error ${res.status}. Try again.`);
+      return;
+    }
     const item = {
-      id: makeId(),
-      note: noteText,
-      lng: pendingPoint.lng,
-      lat: pendingPoint.lat,
-      createdAt: Date.now(),
+      id: data.id,
+      note: data.note,
+      lng: data.lng,
+      lat: data.lat,
+      createdAt: data.createdAt ?? Date.now(),
     };
     notes.unshift(item);
     saveNotes();
@@ -422,7 +478,6 @@ function submitNoteFromPopup(noteText, buttonEl) {
     document.activeElement && document.activeElement.blur && document.activeElement.blur();
     const targetZoom = Math.max(map.getZoom(), 14);
     const flyCenter = getCenterLngLatWithMarkerBelowAtZoom([item.lng, item.lat], MARKER_OFFSET_BELOW_CENTER, targetZoom);
-    // Run flyTo after a tick so layout/viewport has settled (avoids UI jumping on mobile)
     requestAnimationFrame(() => {
       if (!map) return;
       map.flyTo({ center: flyCenter, zoom: targetZoom });
@@ -625,7 +680,7 @@ function initMap() {
   });
 
   // Apply custom colors when map loads (following MapLibre docs pattern)
-  map.on("load", () => {
+  map.on("load", async () => {
     try {
       // Style base/background color - only set on actual background type layers
       const style = map.getStyle();
@@ -735,8 +790,9 @@ function initMap() {
       // Don't prevent map from loading if styling fails
     }
     
-    // Load and display markers
-    notes = loadNotes();
+    // Load notes from API (shared DB); fall back to localStorage if API unavailable
+    notes = await fetchNotesFromApi();
+    if (notes.length === 0) notes = loadNotes();
     for (const n of notes) addMarker(n);
     setStatus(notes.length ? `Loaded ${notes.length} pin(s).` : "");
     requestAnimationFrame(shortenAttribution);
@@ -825,12 +881,27 @@ async function onSubmit(e) {
   setStatus("");
 
   try {
+    const url = API_BASE ? `${API_BASE}/notes.php` : "notes.php";
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        note: noteText,
+        lng: pendingPoint.lng,
+        lat: pendingPoint.lat,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setStatus(data.error || `Error ${res.status}. Try again.`);
+      return;
+    }
     const item = {
-      id: makeId(),
-      note: noteText,
-      lng: pendingPoint.lng,
-      lat: pendingPoint.lat,
-      createdAt: Date.now(),
+      id: data.id,
+      note: data.note,
+      lng: data.lng,
+      lat: data.lat,
+      createdAt: data.createdAt ?? Date.now(),
     };
 
     notes.unshift(item);

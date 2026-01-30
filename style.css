@@ -363,25 +363,26 @@ button.secondary {
 
 /* MapLibre default (maplibre-gl.css) uses position:absolute for controls.
    We override to fixed so zoom/flyTo doesn’t move or scale the control UI. */
+/* Same right offset as .rightControls (14px + safe-area) so location and zoom stay flush on rotation */
 .maplibregl-ctrl-bottom-right {
   position: fixed !important;
   bottom: 0 !important;
   right: 0 !important;
   bottom: calc(0px + env(safe-area-inset-bottom, 0)) !important;
-  right: calc(0px + env(safe-area-inset-right, 0)) !important;
+  right: 0 !important;
   display: flex !important;
   flex-direction: row-reverse !important;
   flex-wrap: wrap !important;
   align-items: flex-end !important;
   justify-content: flex-end !important;
   gap: 0 10px !important;
-  padding: 0 env(safe-area-inset-right, 0) calc(14px + env(safe-area-inset-bottom, 0)) 0 !important;
+  padding: 0 calc(14px + env(safe-area-inset-right, 0)) calc(14px + env(safe-area-inset-bottom, 0)) 0 !important;
   transform: none !important;
 }
 
-/* No bottom margin so zoom stack top (110px) meets location button bottom (110px) */
+/* No bottom margin so zoom stack top (110px) meets location button bottom (110px); no right margin (in padding above) */
 .maplibregl-ctrl-bottom-right .maplibregl-ctrl {
-  margin: 0 14px 0 0 !important;
+  margin: 0 !important;
   float: none !important;
 }
 
@@ -759,14 +760,19 @@ button.secondary {
 .maplibregl-popup {
   border-radius: 0;
 }
-/* MapLibre popup – no rounded corners, pink background, 1px black border */
+/* MapLibre popup – same width for marker and add-note; pink background, 1px black border */
 .maplibregl-popup-content {
   font: inherit;
   color: #0b1020;
-  max-width: min(320px, calc(100vw - 24px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)));
+  width: min(320px, calc(100vw - 48px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)));
+  max-width: min(320px, calc(100vw - 48px - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0)));
+  box-sizing: border-box;
   border-radius: 0;
   background: #ef95bd;
   border: 1px solid #000;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 /* Add-note popup: own max width, independent of menu; content scales inside */
@@ -803,6 +809,12 @@ button.secondary {
   max-width: 100%;
   margin-top: 12px;
   box-sizing: border-box;
+}
+
+.addNoteWordHint {
+  font-size: 12px;
+  color: #0b1020;
+  opacity: 0.7;
 }
 
 .addNotePopupForm textarea {
